@@ -1,28 +1,27 @@
-import React, { lazy, Component ,Suspense} from "react"
+import React, { Component, PureComponent, memo } from "react"
 import "./App.css"
 
 
-const About = lazy(() => import(/*webpackChunkName:"about"*/ "./About"))
-
+const Foo = memo((props) =>{
+  console.log('Foo render')
+  return <div>{props.person.age}</div>
+}) 
 
 class App extends Component {
-  state={
-    hasError:false
-  }
-  static getDerivedStateFromError(){
-    return {
-      hasError:true
+  state = {
+    count:0,
+    person:{
+      age:1
     }
   }
   render() {
-    if(this.state.hasError){
-      return <div>error</div>
-    }
+    const {count,person} = this.state
+    person.age+=1
     return (
       <div>
-        <Suspense fallback={<div>loading</div>}> 
-          <About />
-        </Suspense>
+        <button onClick={()=>this.setState({person})}>add</button>
+        {person.age}
+        <Foo name="mike" person={person}/>
       </div>
     )
   }
