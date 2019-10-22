@@ -1,7 +1,5 @@
 import React, {createContext,Component}from 'react';
-import logo from './logo.svg';
 import './App.css';
-import { SSL_OP_ALL } from 'constants';
 
 
 const BaterryContext = createContext()
@@ -14,16 +12,15 @@ function Middle() {
     </div>
   )
 }
-function Leaf() {
-  return(
-    <BaterryContext.Consumer>
-      {battery=>(
-        <OnlineContext.Consumer>
-          {online=><h1>Battery:{battery},Online:{String(online)}</h1>}
-        </OnlineContext.Consumer>
-      )}
-    </BaterryContext.Consumer>
-  )
+
+class Leaf extends Component{
+  static contextType = BaterryContext
+  render(){
+    const battery = this.context
+    return (
+      <h1>Battery:{battery}</h1>
+    )
+  }
 }
 
 class App extends Component{
