@@ -1,49 +1,31 @@
-import React, {createContext,Component}from 'react';
-import './App.css';
+import React, { lazy, Component ,Suspense} from "react"
+import "./App.css"
 
 
-const BaterryContext = createContext()
-const OnlineContext = createContext()
+const About = lazy(() => import(/*webpackChunkName:"about"*/ "./About"))
 
-function Middle() {
-  return(
-    <div>
-      <Leaf />
-    </div>
-  )
-}
 
-class Leaf extends Component{
-  static contextType = BaterryContext
-  render(){
-    const battery = this.context
+class App extends Component {
+  state={
+    hasError:false
+  }
+  static getDerivedStateFromError(){
+    return {
+      hasError:true
+    }
+  }
+  render() {
+    if(this.state.hasError){
+      return <div>error</div>
+    }
     return (
-      <h1>Battery:{battery}</h1>
+      <div>
+        <Suspense fallback={<div>loading</div>}> 
+          <About />
+        </Suspense>
+      </div>
     )
   }
 }
 
-class App extends Component{
-  state = {
-    online:false,
-    battery:60  
-  }
-  render(){
-    const {battery, online} = this.state
-    return (
-      <BaterryContext.Provider value={battery}>
-          <OnlineContext.Provider value={online}>
-            <button onClick={()=>this.setState({battery:battery+1})}>press</button>
-            <button onClick={()=>this.setState({online:!online})}>switch</button>
-            <Middle />
-          </OnlineContext.Provider>
-      </BaterryContext.Provider>
-    )
-  }
-}
-
-
-
-
-
-export default App;
+export default App
