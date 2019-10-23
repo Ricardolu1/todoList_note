@@ -1,30 +1,83 @@
-import React, { Component, PureComponent, memo } from "react"
+import React, { Component ,useState ,useEffect} from "react"
 import "./App.css"
 
-
-const Foo = memo((props) =>{
-  console.log('Foo render')
-  return <div>{props.person.age}</div>
-}) 
-
-class App extends Component {
+class App2 extends Component{
   state = {
     count:0,
-    person:{
-      age:1
+    size:{
+      width:document.documentElement.clientWidth,
+      height:document.documentElement.clientHeight
     }
   }
-  render() {
-    const {count,person} = this.state
-    person.age+=1
+  onResize=()=>{
+    this.setState({
+      size:{
+        width:document.documentElement.clientWidth,
+        height:document.documentElement.clientHeight
+      }
+    })
+  }
+  componentDidMount(){
+    document.title=this.state.count
+    window.addEventListener('resize',this.onResize,false)
+  }
+  componentDidUpdate(){
+    document.title=this.state.count
+  }
+  componentWillUnmount(){
+    window.removeEventListener('resize',this.onResize,false)
+  }
+  render(){
+    const {count ,size} = this.state
     return (
       <div>
-        <button onClick={()=>this.setState({person})}>add</button>
-        {person.age}
-        <Foo name="mike" person={person}/>
+        <button onClick={()=>this.setState({count:count+1})}>click ({count}) </button>size:{size.width}x{size.height}
       </div>
     )
   }
 }
+
+
+
+
+function App() {
+  const [count, setCount]= useState(0)
+  const [size,setSize] = useState({
+    width:document.documentElement.clientWidth,
+    height:document.documentElement.clientHeight
+  })
+  const onResize = ()=>{
+    setSize({
+        width:document.documentElement.clientWidth,
+        height:document.documentElement.clientHeight
+    })
+  }
+  const onClick= ()=>{
+    console.log('click')
+  }
+  useEffect(()=>{
+    document.title= count
+  })
+  useEffect(()=>{
+    window.addEventListener('resize',onResize,false)
+    return ()=>{
+      window.removeEventListener('resize',onResize,false)
+    }
+  })
+  useEffect(()=>{
+    document.querySelector('#size').addEventListener('click',onClick,false)
+  },[])
+
+  return(
+    <div>  
+      <button onClick={()=>setCount(count+1)} >click ({count}) </button>
+      {count%2?
+        <span id="size">size:{size.width}x{size.height} </span>:
+      <p id="size">size:{size.width}x{size.height}</p>
+      }
+    </div>
+  )
+}
+
 
 export default App
