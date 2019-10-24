@@ -16,7 +16,7 @@ function Control(props) {
     addTodo({
       id:++idSeq,
       text:newText,
-      compelete:false
+      complete:false
     })
     inputRef.current.value = ''
   }
@@ -34,8 +34,8 @@ function Control(props) {
 
 function TodoItem(props) {
   const {todo,toggleTodo,removeTodo} = props
-  const{id,text,compelete} = todo
-  
+  const{id,text,complete} = todo
+
   const onChange=()=>{
     toggleTodo(id)
   }
@@ -45,11 +45,11 @@ function TodoItem(props) {
 
   return (
     <li className="todo-item">
-      <input type="checkbox" onChange={onChange} checked={compelete}/>
-      <label className={compelete?'compelete':''}>
+      <input type="checkbox" onChange={onChange} checked={complete}/>
+      <label className={complete?'complete':''}>
         {text}
       </label>
-      <button onClick={onRemove}>@&#xd7</button>
+      <button onClick={onRemove}>&#xd7;</button>
     </li>
   )
 }
@@ -93,7 +93,7 @@ function TodoList() {
       return todo.id ===id
           ?{
             ...todo,
-            compelete:!todo.compelete,
+            complete:!todo.complete,
           }
           :todo
     }))
