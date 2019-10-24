@@ -1,71 +1,113 @@
-import React, { Component ,PureComponent,useEffect, useState,useMemo,memo,useCallback,useRef} from "react"
+import React, {useEffect, useState,useMemo,memo,useCallback,useRef} from "react"
 import "./App.css"
+import { tsConditionalType } from "@babel/types"
 
+let idSeq = Date.now()
 
-
-function useCounter(count) {
-  const size = useSize()
+function Control(props) {
+  const {addTodo} = props
+  const inputRef = useRef()
+  const onSubmit = (e)=>{
+    e.preventDefault()
+    const newText =  inputRef.current.value.trim()
+    if (newText.length===0) {
+      return
+    }
+    addTodo({
+      id:++idSeq,
+      text:newText,
+      compelete:false
+    })
+    inputRef.current.value = ''
+  }
   return (
-    <h1>{count} ,{size.width}x{size.height}</h1>
+    <div className="control">
+      <h1>
+        todos
+      </h1>
+      <form onSubmit={onSubmit} >
+        <input type="text" className="new-todo" placeholder="what need to be down?" ref = {inputRef}/>
+      </form>
+    </div>
+  )
+}
+
+function TodoItem(props) {
+  const {todo,toggleTodo,removeTodo} = props
+  const{id,text,compelete} = todo
+  
+  const onChange=()=>{
+    toggleTodo(id)
+  }
+  const onRemove = ()=>{
+    removeTodo(id)
+  }
+
+  return (
+    <li className="todo-item">
+      <input type="checkbox" onChange={onChange} checked={compelete}/>
+      <label className={compelete?'compelete':''}>
+        {text}
+      </label>
+      <button onClick={onRemove}>@&#xd7</button>
+    </li>
   )
 }
 
 
 
-function useCount(defaultCount) {
-  const [count, setCount]= useState(defaultCount)
-  const it = useRef() 
-
-  useEffect(()=>{
-    it.current = setInterval(() => {
-      setCount(count=>count+1)
-    }, 1000);
-  },[])
-
-  useEffect(()=>{
-    if (count>=10) {
-      clearInterval(it.current)
-    }
-  },[count])
-  return [count,setCount]
+function Todos(props){
+  const {todos,toggleTodo,removeTodo} = props
+  return (
+    <ul>
+      {
+        todos.map(todo=>{
+          return <TodoItem 
+            key={todo.id}
+            todo ={todo}
+            toggleTodo={toggleTodo}
+            removeTodo={removeTodo}
+          />
+        })
+      }
+    </ul>
+  )
 }
 
-function useSize() {
-  const [size, setSize]= useState({
-    width:document.documentElement.clientWidth,
-    height:document.documentElement.clientHeight
-  })
-  const onResize = useCallback(()=>{
-    setSize({
-      width:document.documentElement.clientWidth,
-      height:document.documentElement.clientHeight
-    })
+
+function TodoList() {
+  const [todos,setTodos] = useState([])
+
+  const addTodo = useCallback((todo)=>{
+    setTodos(todos=>[...todos,todo])
   },[])
 
-  useEffect(()=>{
-    window.addEventListener('resize',onResize,false)
-    return ()=>{
-      window.removeEventListener('resize',onResize,false)
-    }
+  const removeTodo = useCallback((id)=>{
+    setTodos(todos=>todos.filter(todo=>{
+      return todo.id !==id
+    }))
+  },[])//
+  
+  const toggleTodo = useCallback((id)=>{
+    setTodos(todos => todos.map(todo=>{
+      return todo.id ===id
+          ?{
+            ...todo,
+            compelete:!todo.compelete,
+          }
+          :todo
+    }))
   },[])
 
-  return size
-
-
-}
-
-function App() {
-  const [count,setCount] = useCount(0)
-  const Counter = useCounter(count)
-  const size = useSize()
-  return(
-    <div>  
-      <button onClick={()=>setCount(count=>count+1)} >click ({count})
-      {size.width}x{size.height}</button>
-        {Counter} 
+  return (
+    <div className="todo-list">
+      <Control  addTodo={addTodo}/>
+      <Todos removeTodo={removeTodo} toggleTodo={toggleTodo} todos={todos}/>
     </div>
   )
 }
 
 
-export default App
+
+
+export default TodoList
